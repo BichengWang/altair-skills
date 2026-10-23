@@ -13,7 +13,7 @@ Notes for agents working on this repo. Edit this file; `CLAUDE.md` imports it.
 - Scripts use the standard library only and must run on Python 3.8.
 - Verify against the live server: `python3 skills/altair-research/scripts/altair_research.py tickers` and `latest SPY NVDA`. Set `ALTAIR_MCP_URL` to test against a preview deployment.
 - If a change depends on a new server tool, merge only after the server change is deployed.
-- Bump the semver `version` in `plugin.json` when skill behavior changes.
+- Bump the semver `version` in `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` together when skill behavior changes.
 - Keep the disclaimer: reports are AI-generated and not financial advice.
 
 ## Pull requests
@@ -25,8 +25,16 @@ Notes for agents working on this repo. Edit this file; `CLAUDE.md` imports it.
 
 ## Release
 
-Build the committed directory package from the repo root (git archive excludes `.git`; the path exclusions omit review/workflow files):
+From merged `main`, after bumping the version:
 
-```bash
-git archive --format=zip --output=/Users/kw/my-code/tmp/altair-openai-plugin.zip HEAD -- . ':!.github' ':!AGENTS.md' ':!CLAUDE.md'
-```
+1. GitHub: `gh skill publish --tag vX.Y.Z` (validates the skill and creates the release).
+2. ClawHub: `clawhub skill publish skills/altair-research --slug altair-research --owner altair-world --version X.Y.Z --changelog "<what changed>" --source-repo altair-world/altair-skills --source-ref vX.Y.Z --source-path skills/altair-research`. Published versions can't be replaced.
+3. Claude directory: the submission at claude.ai/directory/manage tracks the `v*` tag set in its settings; point it at the new tag, wait for the scan, then Publish.
+4. OpenAI plugin directory: build the ZIP and upload it as a new version at platform.openai.com/plugins:
+
+   ```bash
+   git archive --format=zip --output=/tmp/altair-openai-plugin.zip HEAD -- . ':!.github' ':!AGENTS.md' ':!CLAUDE.md'
+   ```
+
+   Keep `.mcp.json` at `https://altairworld.com/mcp/free`: OpenAI won't change an existing plugin's MCP URL, and its guidelines forbid selling digital services, so the plugin must not reach the paid `get_research_signals` tool on `/mcp`.
+5. skills.sh, SkillsMP and LobeHub index the GitHub repo themselves. LobeHub: once it lists the skill, `npx @lobehub/market-cli skill claim <identifier>`, then `skill publish` for new versions.
