@@ -2,7 +2,7 @@
   "mcpServers": {
     "altair": {
       "type": "http",
-      "url": "https://altairworld.com/mcp"
+      "url": "https://altairworld.com/mcp/free"
     }
   }
 }

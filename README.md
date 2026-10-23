@@ -60,7 +60,7 @@ python3 skills/altair-research/scripts/altair_research.py latest NVDA AMD --date
 python3 skills/altair-research/scripts/altair_research.py report <report-url> --section research
 ```
 
-The script calls the MCP tools `get_research_decisions`, `list_research_reports` and `read_research_report` at `https://altairworld.com/mcp` over plain HTTPS; set `ALTAIR_MCP_URL` to point it at another deployment. To use those tools directly in an MCP client instead: `claude mcp add --transport http altair https://altairworld.com/mcp`. See [altairworld.com/mcp](https://altairworld.com/mcp) for the other free tools, such as market breadth.
+The script calls the MCP tools `get_research_decisions`, `list_research_reports` and `read_research_report` at `https://altairworld.com/mcp/free`, the endpoint with only Altair's free tools, over plain HTTPS; set `ALTAIR_MCP_URL` to point it at another deployment. The plugin's MCP server uses the same endpoint. To use those tools directly in an MCP client instead: `claude mcp add --transport http altair https://altairworld.com/mcp/free`. See [altairworld.com/mcp](https://altairworld.com/mcp) for the other free tools, such as market breadth.
 
 ## Disclaimer
 

@@ -23,7 +23,7 @@ import time
 import urllib.error
 import urllib.request
 
-ENDPOINT = os.environ.get("ALTAIR_MCP_URL", "https://altairworld.com/mcp")
+ENDPOINT = os.environ.get("ALTAIR_MCP_URL", "https://altairworld.com/mcp/free")
 INDEX_TICKERS = ["SPY", "QQQ", "SOXX", "XBI"]
 WORKERS = 4
 ATTEMPTS = 3
