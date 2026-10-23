@@ -20,10 +20,10 @@
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Altair Research",
-    "shortDescription": "Compare stock and ETF research",
-    "longDescription": "Read Altair's published research on about 70 US stocks and ETFs. Compare each model's rating, price target, confidence, horizon and summary, then open the underlying report to examine the bull case, bear case and risks. Intended for readers studying published market research. Coverage and analysis dates vary; report-time closes are not live quotes. The public MCP connection requires no sign-in. Reports are AI-generated for testing and information only, may contain errors, and are not financial or investment advice. The plugin does not place trades or provide personal buy or sell instructions or position sizes.",
+    "shortDescription": "Read Altair stock/ETF research",
+    "longDescription": "Read Altair's published AI research on about 70 US stocks and ETFs. Compare each model's rating, price target, confidence, horizon and summary, then open the underlying report to examine the bull case, bear case and risks. Intended for readers studying published market research. Coverage and analysis dates vary; report-time closes are not live quotes. The public MCP connection requires no sign-in. Reports are AI-generated for testing and information only, may contain errors, and are not financial or investment advice. The plugin does not place trades or provide personal buy or sell instructions or position sizes.",
     "developerName": "Altair AI",
-    "category": "Productivity",
+    "category": "Finance",
     "capabilities": [
       "List research coverage",
       "Compare research decisions",
@@ -32,6 +32,7 @@
     "websiteURL": "https://altairworld.com/TradingAgents/",
     "supportURL": "https://github.com/altair-world/altair-skills/issues",
     "privacyPolicyURL": "https://altairworld.com/privacy",
+    "termsOfServiceURL": "https://altairworld.com/terms",
     "defaultPrompt": [
       "What does the latest Altair research say about Nvidia?",
       "Compare the latest Altair research on SPY, QQQ, SOXX and XBI.",
