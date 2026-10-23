@@ -1,0 +1,65 @@
+# Pull requests labelled "auto-merge" get GitHub auto-merge (squash). The main
+# ruleset requires the "check" job, so a labelled PR merges only after it passes.
+
+name: Auto Merge
+
+on:
+  pull_request:
+    types:
+      - labeled
+      - synchronize
+      - opened
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  automerge:
+    if: github.event.pull_request.merged == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR is mergeable and has "auto-merge" label
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const params = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+            };
+            core.setOutput('should_automerge', 'false');
+            let pr;
+            for (let attempt = 0; attempt < 6; attempt++) {
+              ({ data: pr } = await github.rest.pulls.get(params));
+              if (!pr.labels.some(label => label.name === 'auto-merge')) {
+                core.info('PR does not have the "auto-merge" label. Skipping automerge.');
+                return;
+              }
+              if (pr.state !== 'open') {
+                core.setFailed('PR is not open.');
+                return;
+              }
+              if (pr.mergeable !== null) break;
+              if (attempt < 5) {
+                core.info('GitHub is still computing mergeability. Retrying in 5 seconds.');
+                await new Promise(resolve => setTimeout(resolve, 5000));
+              }
+            }
+            if (pr.mergeable === null) {
+              core.warning('Mergeability is still pending. A later PR event can retry automerge.');
+              return;
+            }
+            if (!pr.mergeable) {
+              core.setFailed('PR is not mergeable.');
+              return;
+            }
+            core.setOutput('should_automerge', 'true');
+
+      - name: Enable automerge
+        if: steps.check.outputs.should_automerge == 'true'
+        shell: bash
+        run: gh pr merge -R "${{ github.repository }}" --auto --squash ${{ github.event.pull_request.number }} --delete-branch
+        env:
+          GH_TOKEN: ${{ github.token }}

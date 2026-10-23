@@ -54,6 +54,12 @@ The script calls the MCP tools `list_research_reports` and `read_research_report
 
 The reports are AI-generated for AI testing and experimentation only. They are not financial or investment advice, may contain errors, and must not be used to make investment or trading decisions.
 
+## Contributing
+
+Changes reach `main` only through pull requests that pass the `check` workflow: manifest and `SKILL.md` frontmatter checks, then the script against the live MCP server on Python 3.8 and 3.13. Add the `auto-merge` label to a pull request and it squash-merges once `check` passes. If a server change is not deployed yet, `check` fails; re-run it after the deploy.
+
+The [main ruleset](.github/main-ruleset.json) enforces this. To recreate it: `gh api --method POST repos/BichengWang/altair-skills/rulesets --input .github/main-ruleset.json`.
+
 ## License
 
 [MIT](LICENSE)
