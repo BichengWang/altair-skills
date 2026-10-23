@@ -6,7 +6,7 @@ Notes for agents working on this repo. Edit this file; `CLAUDE.md` imports it.
 
 - `skills/<name>/SKILL.md` plus `scripts/`: one folder per skill. The frontmatter `name` must match the folder; `description` is at most 1024 characters.
 - `.claude-plugin/plugin.json` and `marketplace.json`: the Claude Code plugin. Keep the plugin name and description the same in both.
-- `README.md`: install and usage for each skill. Update it with any user-visible change.
+- `README.md`: install and usage for each skill. Update it with any user-visible change. GitHub Pages (legacy Jekyll build from `main` at `/`) renders it as https://altair-world.github.io/altair-skills/, so link to files outside Markdown (`LICENSE`, `.github/`) with full GitHub URLs; relative links to them break on the site.
 
 ## Changing a skill
 

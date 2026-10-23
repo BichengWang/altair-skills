@@ -2,6 +2,8 @@
 
 Agent skills from [Altair AI](https://altairworld.com). They read live data from Altair's free public MCP server, so an installed skill always returns the newest research without updates.
 
+Docs site: [altair-world.github.io/altair-skills](https://altair-world.github.io/altair-skills/), built by GitHub Pages from this README on `main`.
+
 ## altair-research
 
 The latest AI research on about 70 US stocks and ETFs: the **SPY** (S&P 500), **QQQ** (Nasdaq-100), **SOXX** (semiconductors) and **XBI** (biotech) index ETFs, refreshed weekly, and stocks such as NVDA, AAPL, MSFT, TSLA, AVGO and META.
@@ -66,8 +68,8 @@ The reports are AI-generated for AI testing and experimentation only. They are n
 
 Changes reach `main` only through pull requests that pass the `check` workflow: manifest and `SKILL.md` frontmatter checks, then the script against the live MCP server on Python 3.8 and 3.13. Add the `auto-merge` label to a pull request and it squash-merges once `check` passes. If a server change is not deployed yet, `check` fails; re-run it after the deploy.
 
-The [main ruleset](.github/main-ruleset.json) enforces this. To recreate it: `gh api --method POST repos/altair-world/altair-skills/rulesets --input .github/main-ruleset.json`.
+The [main ruleset](https://github.com/altair-world/altair-skills/blob/main/.github/main-ruleset.json) enforces this. To recreate it: `gh api --method POST repos/altair-world/altair-skills/rulesets --input .github/main-ruleset.json`.
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/altair-world/altair-skills/blob/main/LICENSE)
