@@ -22,3 +22,11 @@ Notes for agents working on this repo. Edit this file; `CLAUDE.md` imports it.
 - Fill in `.github/pull_request_template.md`: Summary and Verification.
 - The `auto-merge` label squash-merges a PR once `check` passes.
 - Use the system git identity; no co-authors.
+
+## Release
+
+Build the committed directory package from the repo root (git archive excludes `.git`; the path exclusions omit review/workflow files):
+
+```bash
+git archive --format=zip --output=/Users/kw/my-code/tmp/altair-openai-plugin.zip HEAD -- . ':!.github' ':!AGENTS.md' ':!CLAUDE.md'
+```
