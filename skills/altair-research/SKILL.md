@@ -1,6 +1,7 @@
 ---
 name: altair-research
 description: Latest AI research on US stocks and ETFs from altairworld.com's free public MCP server. Covers about 70 tickers, including the SPY, QQQ, SOXX and XBI index ETFs (refreshed weekly) and stocks such as NVDA, AAPL, MSFT, TSLA, AVGO and META. Several Claude, GPT and Gemini models each run the same multi-agent TradingAgents pipeline (technical, sentiment, news and fundamentals analysts, bull/bear debate, trader, risk team, portfolio manager); this skill returns every model's final rating, price target, confidence, horizon and summary, and where they disagree. Use when the user asks for the outlook, rating, price target, bull or bear case, or AI research view on a stock ticker or company, the broad market, Nasdaq, semiconductors or biotech. No API key. Research for information only, not investment advice.
+license: MIT
 ---
 
 # Altair research
