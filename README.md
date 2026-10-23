@@ -41,6 +41,16 @@ GitHub CLI: `gh skill install altair-world/altair-skills altair-research`. OpenC
 
 Needs Python 3.8+ and internet access. No API key or sign-in.
 
+### OpenAI directory package
+
+The `.codex-plugin/plugin.json` manifest packages the skill and the public remote MCP server declared in `.mcp.json` for the directory shared by ChatGPT and Codex. It includes listing metadata, the existing 512×512 icon, five positive and three negative review cases, and release notes. Version 1.0.0 is unchanged. Build the upload ZIP with the command in [AGENTS.md](AGENTS.md#release); this prepares a package without submitting it.
+
+Use a **With MCP** submission. The [skill guide](https://developers.openai.com/plugins/build/skills) assigns live data access to MCP tools; it does not guarantee internet access for bundled Python scripts in ChatGPT skill sandboxes. The script remains available in environments with Python and internet access, and the skill already supports connected MCP tools. A [skills-only publication cannot later gain an MCP server](https://developers.openai.com/plugins/deploy/submission#create-the-draft).
+
+Before portal submission, complete organization/developer identity verification, publish a real terms-of-service page and add its URL as `interface.termsOfServiceURL`, and ensure the [privacy policy](https://altairworld.com/privacy) describes MCP daily counts by tool and client name, retention, and the absence of stored arguments, responses and IP addresses. `/terms` currently serves the homepage and is not a terms document. Host the portal's exact plain-text token at `https://altairworld.com/.well-known/openai-apps-challenge`, then connect the unauthenticated MCP endpoint and resolve metadata, skill and tool scan findings. Confirm **Productivity** is an available dashboard category. Record the five positive and three negative cases in a walkthrough and supply an accessible video URL in Review details or `extensions.com.openai.review.demo_recording_url` before review. The ZIP deliberately omits that URL until a real recording exists. See the [submission requirements](https://developers.openai.com/plugins/deploy/submission) for review and publication steps.
+
+The live server also advertises `get_research_signals`, a separate paid digital-data tool using x402 payments. The skill's three research tools do not require payment, but a directory scan sees the server's full tool inventory. Resolve that paid tool's exposure before submission: the [plugin guidelines](https://developers.openai.com/plugins/plugin-guidelines#commerce-and-monetization) prohibit selling digital products or services. The package makes no commerce declaration pending that server-side decision.
+
 ### Run it yourself
 
 ```bash
