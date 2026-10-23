@@ -25,17 +25,17 @@ Then ask your agent things like "What do the AI models think of Nvidia?", "Compa
 Any agent that supports skills (Claude Code, Codex, Cursor, Gemini CLI and others), using the [skills CLI](https://github.com/vercel-labs/skills):
 
 ```bash
-npx skills add BichengWang/altair-skills --skill altair-research
+npx skills add altair-world/altair-skills --skill altair-research
 ```
 
 Claude Code plugin:
 
 ```bash
-claude plugin marketplace add BichengWang/altair-skills
+claude plugin marketplace add altair-world/altair-skills
 claude plugin install altair@altair-skills
 ```
 
-Or copy `skills/altair-research` into your agent's skills folder.
+GitHub CLI: `gh skill install altair-world/altair-skills altair-research`. OpenClaw, from [ClawHub](https://clawhub.ai): `clawhub install altair-research`. Or copy `skills/altair-research` into your agent's skills folder.
 
 Needs Python 3.8+ and internet access. No API key or sign-in.
 
@@ -58,7 +58,7 @@ The reports are AI-generated for AI testing and experimentation only. They are n
 
 Changes reach `main` only through pull requests that pass the `check` workflow: manifest and `SKILL.md` frontmatter checks, then the script against the live MCP server on Python 3.8 and 3.13. Add the `auto-merge` label to a pull request and it squash-merges once `check` passes. If a server change is not deployed yet, `check` fails; re-run it after the deploy.
 
-The [main ruleset](.github/main-ruleset.json) enforces this. To recreate it: `gh api --method POST repos/BichengWang/altair-skills/rulesets --input .github/main-ruleset.json`.
+The [main ruleset](.github/main-ruleset.json) enforces this. To recreate it: `gh api --method POST repos/altair-world/altair-skills/rulesets --input .github/main-ruleset.json`.
 
 ## License
 
