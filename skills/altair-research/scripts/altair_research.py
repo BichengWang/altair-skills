@@ -3,6 +3,7 @@
 
 Standard library only (Python 3.8+). No API key, no MCP client setup.
 
+  python3 altair_research.py tickers                   # covered tickers and report counts
   python3 altair_research.py latest                    # SPY QQQ SOXX XBI, newest analysis date
   python3 altair_research.py latest NVDA AAPL          # any covered ticker
   python3 altair_research.py latest SPY --date 2026-10-14
@@ -15,12 +16,15 @@ import datetime
 import json
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 
 ENDPOINT = "https://altairworld.com/mcp"
 INDEX_TICKERS = ["SPY", "QQQ", "SOXX", "XBI"]
 PAGE_SIZE = 100
+WORKERS = 2
+ATTEMPTS = 3
 STALE_DAYS = 10
 SUMMARY_CHARS = 600
 DISCLAIMER = ("AI-generated reports for AI testing and experimentation only. They are not financial or "
@@ -29,7 +33,7 @@ HEADERS = {
     "Content-Type": "application/json",
     "Accept": "application/json, text/event-stream",
     # The endpoint sits behind Cloudflare, which rejects the default Python-urllib agent.
-    "User-Agent": "altair-index-research-skill/1.0",
+    "User-Agent": "altair-research-skill/1.1",
 }
 SECTIONS = {
     "analysts": "## I. ",
@@ -44,26 +48,43 @@ class ToolError(Exception):
     pass
 
 
-def call_tool(name, arguments):
-    body = json.dumps(
-        {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": name, "arguments": arguments}}
-    ).encode()
+class Transient(Exception):
+    pass
+
+
+def post(body):
     request = urllib.request.Request(ENDPOINT, data=body, headers=HEADERS, method="POST")
     try:
         with urllib.request.urlopen(request, timeout=90) as response:
             text = response.read().decode("utf-8")
             streamed = "text/event-stream" in response.headers.get("Content-Type", "")
     except urllib.error.HTTPError as error:
+        if error.code in (429, 500, 502, 503, 504):
+            raise Transient("HTTP {}".format(error.code))
         raise ToolError("{} returned HTTP {}".format(ENDPOINT, error.code))
-    except urllib.error.URLError as error:
-        raise ToolError("cannot reach {}: {}".format(ENDPOINT, error.reason))
-
+    except (urllib.error.URLError, OSError) as error:
+        raise Transient(str(getattr(error, "reason", error)))
     if streamed:
         events = [line[5:].strip() for line in text.splitlines() if line.startswith("data:")]
         if not events:
-            raise ToolError("{} sent an empty event stream".format(name))
+            raise Transient("empty event stream")
         text = events[-1]
-    message = json.loads(text)
+    return json.loads(text)
+
+
+def call_tool(name, arguments):
+    body = json.dumps(
+        {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": name, "arguments": arguments}}
+    ).encode()
+    # The server is a Cloudflare Worker that sometimes drops a request under load; reads are idempotent.
+    for attempt in range(ATTEMPTS):
+        try:
+            message = post(body)
+            break
+        except Transient as error:
+            if attempt == ATTEMPTS - 1:
+                raise ToolError("{} failed after {} attempts: {}".format(name, ATTEMPTS, error))
+            time.sleep(2 ** attempt)
     if "error" in message:
         raise ToolError("{}: {}".format(name, message["error"].get("message", message["error"])))
     result = message["result"]
@@ -75,8 +96,13 @@ def call_tool(name, arguments):
     return json.loads(result["content"][0]["text"])
 
 
+def covered_tickers():
+    # A ticker filter that matches nothing still returns counts for every covered ticker.
+    return call_tool("list_research_reports", {"ticker": "-", "limit": 1}).get("tickers", [])
+
+
 def runs_for(ticker, date):
-    """Newest run per model on `date` (or the newest analysis date when `date` is None)."""
+    """Newest run per model on `date` (the newest analysis date when None) and, if uncovered, the covered list."""
     picked, seen, offset = [], set(), 0
     while True:
         page = call_tool("list_research_reports", {"ticker": ticker, "limit": PAGE_SIZE, "offset": offset})
@@ -130,16 +156,19 @@ def short(value, limit):
 
 
 def decision(report):
-    data = call_tool("read_research_report", {"url": report["url"]})
+    row = {"model": report["model"], "url": report["url"]}
+    try:
+        data = call_tool("read_research_report", {"url": report["url"]})
+    except ToolError as error:
+        row["error"] = str(error)
+        return row
     pm = section(data["markdown"], "pm")
     summary = ""
     if "**Executive Summary**" in pm:
         summary = pm.split("**Executive Summary**", 1)[1].split("**Investment Thesis**", 1)[0]
     close = first_number(field(pm, "Current Price"))
     target = first_number(field(pm, "Price Target"))
-    return {
-        "model": report["model"],
-        "url": report["url"],
+    row.update({
         "rating": field(pm, "Rating") or "not stated",
         "close": close,
         "target": target,
@@ -147,7 +176,8 @@ def decision(report):
         "confidence": re.split(r"[.;,(]", field(pm, "Confidence"))[0].strip() or "not stated",
         "horizon": short(re.split(r"\. ", field(pm, "Time Horizon"))[0], 60) or "not stated",
         "summary": " ".join(summary.split()),
-    }
+    })
+    return row
 
 
 def money(value):
@@ -156,33 +186,47 @@ def money(value):
 
 def render_ticker(ticker, date, rows, summary_chars, covered):
     if covered is not None:
-        return "## {}\n\nNot covered. Tickers with reports: {}.\n".format(ticker, ", ".join(covered))
+        return "## {}\n\nNot covered. Run `tickers` for the covered list.\n".format(ticker)
     if not rows:
         return "## {}\n\nNo reports for analysis date {}.\n".format(ticker, date)
+    read = [row for row in rows if "error" not in row]
     counts = {}
-    for row in rows:
+    for row in read:
         counts[row["rating"]] = counts.get(row["rating"], 0) + 1
     split = ", ".join("{} {}".format(n, rating) for rating, n in sorted(counts.items(), key=lambda kv: -kv[1]))
     lines = [
-        "## {} · analysis date {} · {} models: {}".format(ticker, date, len(rows), split),
+        "## {} · analysis date {} · {} models: {}".format(ticker, date, len(read), split or "none readable"),
         "",
         "| Model | Rating | Close at report | Target | Target vs close | Confidence | Horizon |",
         "| --- | --- | --- | --- | --- | --- | --- |",
     ]
-    for row in rows:
+    for row in read:
         upside = "n/a" if row["upside"] is None else "{:+.1%}".format(row["upside"])
         lines.append("| [{}]({}) | {} | {} | {} | {} | {} | {} |".format(
             row["model"], row["url"], row["rating"], money(row["close"]), money(row["target"]),
             upside, row["confidence"], row["horizon"]))
-    lines.append("")
     for row in rows:
+        if "error" in row:
+            lines.append("| [{}]({}) | unavailable: {} | | | | | |".format(row["model"], row["url"], row["error"]))
+    lines.append("")
+    for row in read:
         lines.append("- **{}**: {}".format(row["model"], short(row["summary"], summary_chars) or "no summary"))
     return "\n".join(lines) + "\n"
 
 
+def normalize(raw):
+    tickers = []
+    for item in raw:
+        for part in re.split(r"[,\s]+", item):
+            ticker = part.strip().lstrip("$").upper()
+            if ticker and ticker not in tickers:
+                tickers.append(ticker)
+    return tickers
+
+
 def latest(args):
-    tickers = [t.upper() for t in args.tickers] or INDEX_TICKERS
-    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+    tickers = normalize(args.tickers) or INDEX_TICKERS
+    with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as pool:
         listed = dict(zip(tickers, pool.map(lambda t: runs_for(t, args.date), tickers)))
         jobs = [(t, r) for t in tickers for r in listed[t][1]]
         decisions = list(pool.map(lambda job: decision(job[1]), jobs))
@@ -209,6 +253,17 @@ def latest(args):
     print("\n".join(out))
 
 
+def tickers(args):
+    covered = covered_tickers()
+    index = [t for t in covered if t["ticker"] in INDEX_TICKERS]
+    others = [t for t in covered if t["ticker"] not in INDEX_TICKERS]
+    print("# Tickers with Altair research ({} covered)\n".format(len(covered)))
+    print("Report counts are all runs across models and dates. Index ETFs are refreshed about weekly; "
+          "other tickers less regularly, so check the analysis date `latest` prints.\n")
+    for title, group in (("Index ETFs", index), ("Stocks and other funds", others)):
+        print("{}: {}\n".format(title, ", ".join("{} ({})".format(t["ticker"], t["reports"]) for t in group)))
+
+
 def report(args):
     data = call_tool("read_research_report", {"url": args.url})
     print("# {} · {} · {}\n{}\n".format(data["ticker"], data["date"], data["model"], data["url"]))
@@ -226,8 +281,11 @@ def analysis_date(value):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     commands = parser.add_subparsers(dest="command", required=True)
+    tickers_parser = commands.add_parser("tickers", help="covered tickers with report counts")
+    tickers_parser.set_defaults(run=tickers)
     latest_parser = commands.add_parser("latest", help="final decisions from every model on the newest analysis date")
-    latest_parser.add_argument("tickers", nargs="*", help="default: " + " ".join(INDEX_TICKERS))
+    latest_parser.add_argument("tickers", nargs="*",
+                               help="tickers, space- or comma-separated (default: {})".format(" ".join(INDEX_TICKERS)))
     latest_parser.add_argument("--date", type=analysis_date, help="analysis date YYYY-MM-DD instead of the newest")
     latest_parser.add_argument("--summary-chars", type=int, default=SUMMARY_CHARS,
                                help="executive summary length per model (default %(default)s)")
