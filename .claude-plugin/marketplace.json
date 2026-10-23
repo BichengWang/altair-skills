@@ -1,0 +1,15 @@
+{
+  "name": "altair-skills",
+  "description": "Agent skills from Altair AI (altairworld.com)",
+  "owner": {
+    "name": "Altair AI",
+    "url": "https://altairworld.com"
+  },
+  "plugins": [
+    {
+      "name": "altair",
+      "source": "./",
+      "description": "Latest weekly multi-model AI research on SPY, QQQ, SOXX and XBI from altairworld.com's free MCP server"
+    }
+  ]
+}

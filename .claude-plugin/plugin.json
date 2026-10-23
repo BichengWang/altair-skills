@@ -1,0 +1,13 @@
+{
+  "name": "altair",
+  "description": "Latest weekly multi-model AI research on SPY, QQQ, SOXX and XBI from altairworld.com's free MCP server",
+  "version": "1.0.0",
+  "author": {
+    "name": "Altair AI",
+    "url": "https://altairworld.com"
+  },
+  "homepage": "https://altairworld.com/TradingAgents/",
+  "repository": "https://github.com/BichengWang/altair-skills",
+  "license": "MIT",
+  "keywords": ["finance", "research", "etf", "spy", "qqq", "soxx", "xbi", "mcp"]
+}
