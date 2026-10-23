@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "altair": {
+      "type": "http",
+      "url": "https://altairworld.com/mcp"
+    }
+  }
+}

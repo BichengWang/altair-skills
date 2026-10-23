@@ -35,6 +35,8 @@ claude plugin marketplace add altair-world/altair-skills
 claude plugin install altair@altair-skills
 ```
 
+The plugin also adds the free `altair` MCP server (no key needed).
+
 GitHub CLI: `gh skill install altair-world/altair-skills altair-research`. OpenClaw, from [ClawHub](https://clawhub.ai): `clawhub install altair-research`. Or copy `skills/altair-research` into your agent's skills folder.
 
 Needs Python 3.8+ and internet access. No API key or sign-in.
