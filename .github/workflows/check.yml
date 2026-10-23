@@ -1,0 +1,54 @@
+# Required before merge: manifests parse, the skill's frontmatter is valid, and the
+# script answers from the live MCP server on the oldest and newest supported Python.
+# The live call is the real end-to-end test: the skill is only useful if
+# altairworld.com serves the tools it calls. Re-run this check after a server fix.
+
+name: Check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: |
+            3.8
+            3.13
+
+      - name: Manifests and skill frontmatter
+        run: |
+          python3.13 - <<'EOF'
+          import json, pathlib, re
+          market = json.loads(pathlib.Path(".claude-plugin/marketplace.json").read_text())
+          plugin = json.loads(pathlib.Path(".claude-plugin/plugin.json").read_text())
+          assert [p["name"] for p in market["plugins"]] == [plugin["name"]], "marketplace entry must match plugin.json name"
+          assert re.fullmatch(r"\d+\.\d+\.\d+", plugin["version"]), "plugin.json version must be semver"
+          for skill in pathlib.Path("skills").glob("*/SKILL.md"):
+              head = skill.read_text().split("---")[1]
+              name = re.search(r"^name: (.+)$", head, re.M).group(1).strip()
+              description = re.search(r"^description: (.+)$", head, re.M).group(1).strip()
+              assert name == skill.parent.name, f"{skill}: name must match its folder"
+              assert 0 < len(description) <= 1024, f"{skill}: description must be 1-1024 characters"
+              print("ok", skill)
+          EOF
+
+      - name: Live research on Python 3.8 and 3.13
+        run: |
+          script=skills/altair-research/scripts/altair_research.py
+          for python in python3.8 python3.13; do
+            "$python" "$script" tickers | tee tickers.md
+            grep -q 'SPY (' tickers.md
+            "$python" "$script" latest SPY NVDA --summary-chars 120 | tee latest.md
+            test "$(grep -c '^## [A-Z]* · analysis date' latest.md)" -eq 2
+            ! grep -q 'unavailable' latest.md
+          done
