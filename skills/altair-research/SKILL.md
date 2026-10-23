@@ -6,7 +6,7 @@ license: MIT
 
 # Altair research
 
-Fetches the newest published research from <https://altairworld.com/TradingAgents/> through Altair's public MCP server (`https://altairworld.com/mcp`): `get_research_decisions` for each model's final decision, `list_research_reports` for coverage and `read_research_report` for full reports. No key, no sign-in, no MCP setup. Every call returns current data without updating this skill.
+Fetches the newest published research from <https://altairworld.com/TradingAgents/> through Altair's free public MCP endpoint (`https://altairworld.com/mcp/free`): `get_research_decisions` for each model's final decision, `list_research_reports` for coverage and `read_research_report` for full reports. No key, no sign-in, no MCP setup. Every call returns current data without updating this skill.
 
 ## Run
 
