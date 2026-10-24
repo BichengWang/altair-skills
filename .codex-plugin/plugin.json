@@ -1,6 +1,6 @@
 {
   "name": "altair",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Read and compare published research on US stocks and ETFs from Altair.",
   "author": {
     "name": "Altair AI",
@@ -100,7 +100,7 @@
         }
       },
       "publication": {
-        "release_notes": "1.0.0: Initial directory package with published stock and ETF research, model decision comparisons, full report reading, a public remote MCP connection and review scenarios."
+        "release_notes": "1.0.1: Initial directory package with published stock and ETF research, model decision comparisons, full report reading, a public remote MCP connection and review scenarios."
       }
     }
   }
