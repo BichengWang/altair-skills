@@ -37,4 +37,6 @@ From merged `main`, after bumping the version:
    ```
 
    Keep `.mcp.json` at `https://altairworld.com/mcp/free`: OpenAI won't change an existing plugin's MCP URL, and its guidelines forbid selling digital services, so the plugin must not reach the paid `get_research_signals` tool on `/mcp`.
+
+   Each submission needs a demo recording URL under Review information → Supporting content. It should show the five positive and three negative test cases from `.codex-plugin/plugin.json`. The 1.0.0 recording is the `altair-research-codex-demo.mp4` asset on release `v1.0.1`. It runs each test case through `codex exec --json` with the plugin installed in a clean `CODEX_HOME`, recorded with `vhs`.
 5. skills.sh, SkillsMP and LobeHub index the GitHub repo themselves. skills.sh lists a repo path once someone installs from it; after the repo moved from `bichengwang` it showed only the old path until one `npx skills add altair-world/altair-skills --skill altair-research` run. LobeHub: once it lists the skill, `npx @lobehub/market-cli skill claim <identifier>`, then `skill publish` for new versions.
