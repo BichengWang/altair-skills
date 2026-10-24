@@ -47,7 +47,8 @@ Needs Python 3.8+ and internet access. No API key or sign-in.
 
 - [skills.sh](https://www.skills.sh/altair-world/altair-skills/altair-research)
 - [ClawHub](https://clawhub.ai/altair-world/skills/altair-research)
-- Claude directory and the OpenAI plugin directory (ChatGPT and Codex): submitted, in review.
+- Claude directory: submitted, in review.
+- OpenAI plugin directory (ChatGPT and Codex): coming soon.
 
 ### Run it yourself
 
