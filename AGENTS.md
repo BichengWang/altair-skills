@@ -28,7 +28,7 @@ Notes for agents working on this repo. Edit this file; `CLAUDE.md` imports it.
 From merged `main`, after bumping the version:
 
 1. GitHub: `gh skill publish --tag vX.Y.Z` (validates the skill and creates the release).
-2. ClawHub: `clawhub skill publish skills/altair-research --slug altair-research --owner altair-world --version X.Y.Z --changelog "<what changed>" --source-repo altair-world/altair-skills --source-ref vX.Y.Z --source-path skills/altair-research`. Published versions can't be replaced.
+2. ClawHub: `clawhub skill publish skills/altair-research --slug altair-research --owner altair-world --version X.Y.Z --changelog "<what changed>" --source-repo altair-world/altair-skills --source-commit "$(git rev-list -n1 vX.Y.Z)" --source-ref vX.Y.Z --source-path skills/altair-research`. `--source-repo` needs `--source-commit`. Published versions can't be replaced, and the new version stays private until ClawHub's security scan passes.
 3. Claude directory: the submission at claude.ai/directory/manage tracks the `v*` tag set in its settings; point it at the new tag, wait for the scan, then Publish.
 4. OpenAI plugin directory: build the ZIP and upload it as a new version at platform.openai.com/plugins:
 
@@ -37,4 +37,4 @@ From merged `main`, after bumping the version:
    ```
 
    Keep `.mcp.json` at `https://altairworld.com/mcp/free`: OpenAI won't change an existing plugin's MCP URL, and its guidelines forbid selling digital services, so the plugin must not reach the paid `get_research_signals` tool on `/mcp`.
-5. skills.sh, SkillsMP and LobeHub index the GitHub repo themselves. LobeHub: once it lists the skill, `npx @lobehub/market-cli skill claim <identifier>`, then `skill publish` for new versions.
+5. skills.sh, SkillsMP and LobeHub index the GitHub repo themselves. skills.sh lists a repo path once someone installs from it; after the repo moved from `bichengwang` it showed only the old path until one `npx skills add altair-world/altair-skills --skill altair-research` run. LobeHub: once it lists the skill, `npx @lobehub/market-cli skill claim <identifier>`, then `skill publish` for new versions.
